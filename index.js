@@ -151,7 +151,10 @@ const resolvers = {
   Mutation: {
     addBook: (root, args) => {
 
+        console.log(args)
+
         if (!args.title || !args.published || !args.author || !args.genres) {
+            console.log('Entre en null')
             return null
         }
 

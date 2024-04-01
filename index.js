@@ -183,8 +183,13 @@ const resolvers = {
         const author = await Author.findOne({ name: args.authorName }).exec()
         if (!author) {
           console.log('Author not found')
-          return []
-        }
+          throw new GraphQLError('Author invalidate', {
+            extensions: {
+              code: 'BAD_BOOKS_INPUT',
+              invalidArgs: args.name,
+              error
+            }
+          })        }
         const allBooks = await Book.find({ author: author._id, genres: args.genre }).exec()
         console.log('allBooks:', allBooks)
         console.log('-----------------------')
@@ -249,8 +254,14 @@ const resolvers = {
       console.log('Args: ', args)
 
       if (!args.title || !args.published || !args.author || !args.genres) {
-        console.log('Entre en null')
-        return null
+        console.log('Args --> null')
+        throw new GraphQLError('Args invalidate', {
+          extensions: {
+            code: 'BAD_BOOK_INPUT',
+            invalidArgs: args,
+            error
+          }
+        })
       }
 
       const author = await Author.findOne({ name: args.author }).exec()
@@ -264,8 +275,12 @@ const resolvers = {
         await book.save()
         console.log('---- Book agregado con Exito ----')
       } catch(err) {
-        throw new UserInputError(err.message, {
-          invalidArgs: args,
+        throw new GraphQLError('Saving book failed', {
+          extensions: {
+            code: 'BAD_BOOK_INPUT',
+            invalidArgs: args.author,
+            error
+          }
         })
       }
       return book
@@ -274,13 +289,25 @@ const resolvers = {
 
         if (!args.name || !args.setBornTo ) {
           console.log('Name o setBortTo  estan vacio/s')
-          return null
+          throw new GraphQLError('Args invalidate', {
+            extensions: {
+              code: 'BAD_AUTHOR_INPUT',
+              invalidArgs: args,
+              error
+            }
+          })
         }
         
         const author = await Author.findOne({ name: args.name }).exec()
         if(!author){
           console.log('No se encontro al autor')
-          return null
+          throw new GraphQLError('Author invalidate', {
+            extensions: {
+              code: 'BAD_AUTHOR_INPUT',
+              invalidArgs: args.name,
+              error
+            }
+          })
         }
 
         author.born = args.setBornTo
@@ -288,8 +315,12 @@ const resolvers = {
           await author.save()
           console.log('---- Author editado con exito ----')
         } catch(err) {
-          throw new UserInputError(error.message, {
-            invalidArgs: args,
+          throw new GraphQLError('Editing author failed', {
+            extensions: {
+              code: 'BAD_AUTHOR_INPUT',
+              invalidArgs: args.name,
+              error
+            }
           })
         }
         return author

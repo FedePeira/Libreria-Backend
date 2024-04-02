@@ -164,6 +164,7 @@ const typeDefs = `
     authorCount: Int
     allBooks(authorName: String, genre: String): [Book!]!
     allAuthors: [Author!]!
+    findAuthorById(authorId: ID!): Author!
     me: User
   }
 
@@ -210,9 +211,10 @@ const resolvers = {
               invalidArgs: args.name,
               error
             }
-          })        }
+          })        
+        }
         const allBooks = await Book.find({ author: author._id, genres: args.genre }).exec()
-        console.log('allBooks:', allBooks)
+        //console.log('allBooks:', allBooks)
         console.log('-----------------------')
         return allBooks
       } 
@@ -220,7 +222,7 @@ const resolvers = {
       if(args.genre) {
         console.log('---- Filter by genre ----')
         const allBooks = await Book.find({ genres: args.genre }).exec()
-        console.log('allBooks:', allBooks)
+        //console.log('allBooks:', allBooks)
         console.log('-----------------------')        
         return allBooks
       } 
@@ -234,14 +236,14 @@ const resolvers = {
         }
 
         const allBooks = await Book.find({ author: author._id }).exec()
-        console.log('allBooks:', allBooks)
+        //console.log('allBooks:', allBooks)
         console.log('-----------------------')
         return allBooks
       }
 
       console.log('---- No Filter ----')
       const allBooks =  await Book.find({}).exec()
-      console.log('allBooks:', allBooks)
+      //console.log('allBooks:', allBooks)
       console.log('-----------------------') 
       return allBooks
     },
@@ -258,15 +260,24 @@ const resolvers = {
 
       const allAuthors = await Author.find({}).exec()
       const authorsWithBookCount = allAuthors.map(author => {
-        console.log('Author: ', author)
+        // console.log('Author: ', author)
         const authorBooksCount = authorBooks[author._id] ? authorBooks[author._id].length : 0
         return {
             ...author._doc,
             bookCount: authorBooksCount
         }
       })
-      console.log('AuthorsBooksCount: ', authorsWithBookCount)
+      //console.log('AuthorsBooksCount: ', authorsWithBookCount)
       return authorsWithBookCount
+    },
+    findAuthorById: async(root, args) => {
+      console.log('---- FINDING AUTHOR BY ID ----')
+      const author = await Author.findOne({ _id: args.authorId }).exec()
+      console.log('---- Find Author ----')
+      console.log('Args: ', args.authorId)
+      console.log('Author: ', author)
+      console.log('---------------------')
+      return author
     },
     me: (root, args, context) => {
       return context.currentUser

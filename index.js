@@ -164,6 +164,7 @@ const typeDefs = `
     authorCount: Int
     allBooks(authorName: String, genre: String): [Book!]!
     allAuthors: [Author!]!
+    allGenres: [String!]!
     findAuthorById(authorId: ID!): Author!
     me: User
   }
@@ -173,7 +174,7 @@ const typeDefs = `
       title: String!
       published: Int!
       author: String!
-      genres: [String!]!
+      genres: [String]!
     ): Book!
     editAuthor(
         name: String!,
@@ -270,6 +271,22 @@ const resolvers = {
       //console.log('AuthorsBooksCount: ', authorsWithBookCount)
       return authorsWithBookCount
     },
+    allGenres: async () => {
+      console.log('---- ALL GENRES ----')
+      const allGenres = new Set()
+      const allBooks = await Book.find({}).exec()
+      allBooks.forEach(b => {
+        if(b.genres.length > 0) {
+          b.genres.forEach(genre => {
+            allGenres.add(genre)
+          })
+        }
+      })
+      
+      console.log('Genres: ', allGenres)
+      console.log('--------------------')
+      return Array.from(allGenres)
+    },
     findAuthorById: async(root, args) => {
       console.log('---- FINDING AUTHOR BY ID ----')
       const author = await Author.findOne({ _id: args.authorId }).exec()
@@ -321,7 +338,7 @@ const resolvers = {
       return book
     },
     editAuthor: async (root, args) => {
-      console.log('---- EDIT AUTHOR ----')
+        console.log('---- EDIT AUTHOR ----')
         if (!args.name || !args.setBornTo ) {
           console.log('Name o setBortTo  estan vacio/s')
           throw new GraphQLError('Args invalidate', {

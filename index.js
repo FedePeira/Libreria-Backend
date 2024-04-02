@@ -378,7 +378,8 @@ const resolvers = {
     login: async (root, args) => {
       console.log('---- LOGIN USER ----')
       const user = await User.findOne({ username: args.username })
-
+      console.log('User: ', user)
+      console.log('--------------------')
       if(!user || args.password !== 'secret') {
         throw new GraphQLError('wrong credentials', {
           extensions: {

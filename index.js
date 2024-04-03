@@ -197,10 +197,6 @@ const resolvers = {
     bookCount: async () => Book.collection.countDocuments(),
     authorCount: async () => Author.collection.countDocuments(),
     allBooks: async (root, args) => {
-      console.log('---- ALL BOOKS ----')
-      console.log('Args :', args)
-      console.log('-------------------')
-
       if(args.authorName && args.genre) {
         console.log('---- Filter by both ----')
         const author = await Author.findOne({ name: args.authorName }).exec()
@@ -242,14 +238,10 @@ const resolvers = {
         return allBooks
       }
 
-      console.log('---- No Filter ----')
       const allBooks =  await Book.find({}).exec()
-      //console.log('allBooks:', allBooks)
-      console.log('-----------------------') 
       return allBooks
     },
     allAuthors: async () => {
-      console.log('---- ALL AUTHORS ----')
       const authorBooks = {}
       const allBooks = await Book.find({}).exec()
       allBooks.forEach(book => {
@@ -272,7 +264,6 @@ const resolvers = {
       return authorsWithBookCount
     },
     allGenres: async () => {
-      console.log('---- ALL GENRES ----')
       const allGenres = new Set()
       const allBooks = await Book.find({}).exec()
       allBooks.forEach(b => {
@@ -283,8 +274,6 @@ const resolvers = {
         }
       })
       
-      console.log('Genres: ', allGenres)
-      console.log('--------------------')
       return Array.from(allGenres)
     },
     findAuthorById: async(root, args) => {
